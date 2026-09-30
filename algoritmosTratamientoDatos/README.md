@@ -1,0 +1,1 @@
+aqui van los algoritmos que se han usado para hacer tratamiento a los datos
