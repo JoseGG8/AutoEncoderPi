@@ -37,11 +37,15 @@ import pandas as pd
 sys.stdout.reconfigure(encoding="utf-8")
 
 # ─────────────────────────── Configuración ───────────────────────────
-CSV_PATH = os.path.join(
-    os.path.dirname(os.path.abspath(__file__)),
-    "..",
-    "paderborn_features_tratadas.csv",
-)
+_CANDIDATOS_CSV = [
+    "/content/drive/MyDrive/Paderborn_QML/01_datos/sanos/paderborn_features_tratadas.csv",
+    "/content/drive/My Drive/Paderborn_QML/01_datos/sanos/paderborn_features_tratadas.csv",
+    "/content/drive/MyDrive/Paderborn_QML/paderborn_features_tratadas.csv",
+    "/content/drive/My Drive/Paderborn_QML/paderborn_features_tratadas.csv",
+    "/content/drive/MyDrive/Paderborn_QML/VERSION CON ATIPICOS TRATADOS/paderborn_features_tratadas.csv",
+    os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "paderborn_features_tratadas.csv"),
+]
+CSV_PATH = next((p for p in _CANDIDATOS_CSV if os.path.exists(p)), _CANDIDATOS_CSV[0])
 NUM_BINS = 50  # bins para discretización (buen balance precisión/costo)
 UMBRAL_BAJA_ENTROPIA = 0.15  # entropía normalizada por debajo = "baja"
 FFT_PREFIX = "fft_"  # prefijo de columnas FFT (escala ln(x+1))
