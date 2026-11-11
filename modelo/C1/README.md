@@ -1,11 +1,13 @@
 # Circuito C1 — Rot + CNOT de alcance variable (QAE)
 
+> **Actualización de preprocesamiento:** el notebook usa ahora `RobustScaler(quantile_range=(10, 90))` para evitar que RPM y Fuerza_N dominen la normalización L₂. Los resultados numéricos de este README fueron obtenidos con la escala anterior y deben volver a medirse.
+
 > Contexto técnico **solo del circuito C1**. Notebook: [`Refinamiento_c1.ipynb`](Refinamiento_c1.ipynb). Los datos y el pipeline se comparten con el resto del proyecto (ver sección 1).
 
 ## 1. Marco del problema (resumen)
 - **Tarea:** detección de fallas en rodamientos (dataset Paderborn) con un Autoencoder Cuántico entrenado de forma no supervisada / one-class (solo datos sanos).
 - **Datos:** `../../paderborn_features_tratadas.csv`, 59 867 filas × 71 features. **Todas son sanas (`Label = 0`)**; las anomalías de evaluación son **sintéticas** (`X[:, 10:25] += N(0.4, 0.1)` y renormalizar L2).
-- **Pipeline:** split 70/15/15 (`random_state=42`) → `RobustScaler` (fit solo en train) → zero-padding a 128 → norma L2 → **Amplitude Encoding en 7 qubits**.
+- **Pipeline:** split 70/15/15 (`random_state=42`) → `RobustScaler(quantile_range=(10, 90))` (fit solo en train) → zero-padding a 128 → norma L2 → **Amplitude Encoding en 7 qubits**.
 - **Autoencoder:** ansatz U(θ) sobre 7 qubits; los últimos `trash` qubits son los *trash*, el resto son latentes. Pérdida `1 − E[P(|0⟩^trash)]`; fidelidad `F = P(|0⟩^trash)`; error de reconstrucción = `1 − F`.
 - **Detección:** score = `1 − F`; umbral τ = percentil 95 del score en sanos (≈ 5 % de FPR por construcción). Positivo = anomalía.
 - **Entorno:** PennyLane 0.45.1 (`default.qubit`, backprop), scikit-learn, pandas; Adam lr 0.12, batch 25, 20 épocas, 100 muestras de entrenamiento, pesos iniciales U[0, 2π].

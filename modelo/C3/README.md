@@ -1,11 +1,13 @@
 # Circuito C3 — StronglyEntanglingLayers (QAE)
 
+> **Actualización de preprocesamiento:** el notebook usa ahora `RobustScaler(quantile_range=(10, 90))` para evitar que RPM y Fuerza_N dominen la normalización L₂. Los resultados numéricos previos citados aquí corresponden a la escala anterior y deben volver a medirse.
+
 > Contexto técnico **solo del circuito C3**. Notebook: [`Refinamiento_c3.ipynb`](Refinamiento_c3.ipynb) (copia del notebook de C1 adaptada). **Estado: la búsqueda de configuración está escrita pero aún no se ha ejecutado; no hay resultados de C3 refinado.**
 
 ## 1. Marco del problema (resumen)
 - **Tarea:** detección de fallas en rodamientos (dataset Paderborn) con un Autoencoder Cuántico no supervisado / one-class (solo datos sanos).
 - **Datos:** `../../paderborn_features_tratadas.csv`, 59 867 filas × 71 features, **todas sanas**; las anomalías de evaluación son **sintéticas** (`X[:, 10:25] += N(0.4, 0.1)` + renormalizar L2).
-- **Pipeline:** split 70/15/15 (`random_state=42`) → `RobustScaler` (fit solo en train) → zero-padding a 128 → norma L2 → **Amplitude Encoding en 7 qubits**.
+- **Pipeline:** split 70/15/15 (`random_state=42`) → `RobustScaler(quantile_range=(10, 90))` (fit solo en train) → zero-padding a 128 → norma L2 → **Amplitude Encoding en 7 qubits**.
 - **Autoencoder:** ansatz sobre 7 qubits; los últimos `trash` son *trash*, el resto latentes. Pérdida `1 − E[P(|0⟩^trash)]`; fidelidad `F = P(|0⟩^trash)`; error = `1 − F`.
 - **Detección:** score `1 − F`, τ = percentil 95 en sanos (≈ 5 % FPR por construcción), positivo = anomalía.
 - **Entorno:** PennyLane 0.45.1, Adam, batch 25, pesos iniciales U[0, 2π].
